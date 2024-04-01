@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include "responsavel.h"
+#include "crianca.h"
+
+typedef struct crianca{
+    char nome[50];
+    int idade;
+    int doc;
+    char sexo[10];
+    struct crianca *proximo;
+}Crianca;
 
 void menu_crianca(){
     printf("== MENU ==\n");
@@ -27,6 +36,91 @@ void menu()
 }
 
 
+int comparar_criancas(const void *a, const void *b) {
+    const Crianca *crianca1 = (const Crianca *)a;
+    const Crianca *crianca2 = (const Crianca *)b;
+    return strcmp(crianca1->nome, crianca2->nome);
+}
+
+
+void ordenar_criancas(Crianca **lista) {
+    
+    int tamanho = 0;
+    Crianca *atual = *lista;
+    while (atual != NULL) {
+        tamanho++;
+        atual = atual->proximo;
+    }
+
+    
+    Crianca **array = (Crianca **)malloc(tamanho * sizeof(Crianca *));
+    if (array == NULL) {
+        fprintf(stderr, "Erro: Falha ao alocar memória\n");
+        exit(EXIT_FAILURE);
+    }
+
+    
+    atual = *lista;
+    for (int i = 0; i < tamanho; i++) {
+        array[i] = atual;
+        atual = atual->proximo;
+    }
+
+    
+    qsort(array, tamanho, sizeof(Crianca *), comparar_criancas);
+
+    
+    *lista = array[0];
+    for (int i = 0; i < tamanho - 1; i++) {
+        array[i]->proximo = array[i + 1];
+    }
+    array[tamanho - 1]->proximo = NULL;
+
+    
+    free(array);
+}
+
+
+int comparar_responsaveis(const void *a, const void *b) {
+    const Responsavel *resp1 = (const Responsavel *)a;
+    const Responsavel *resp2 = (const Responsavel *)b;
+    return strcmp(resp1->nome, resp2->nome);
+}
+
+void ordenar_lista(Responsavel **lista) {
+    
+    int tamanho = 0;
+    Responsavel *atual = *lista;
+    while (atual != NULL) {
+        tamanho++;
+        atual = atual->proximo;
+    }
+
+
+    Responsavel **array = (Responsavel **)malloc(tamanho * sizeof(Responsavel *));
+    if (array == NULL) {
+        fprintf(stderr, "Erro: Falha ao alocar memória\n");
+        exit(EXIT_FAILURE);
+    }
+
+    atual = *lista;
+    for (int i = 0; i < tamanho; i++) {
+        array[i] = atual;
+        atual = atual->proximo;
+    }
+
+    qsort(array, tamanho, sizeof(Responsavel *), comparar_responsaveis);
+
+    *lista = array[0];
+    for (int i = 0; i < tamanho - 1; i++) {
+        array[i]->proximo = array[i + 1];
+    }
+    array[tamanho - 1]->proximo = NULL;
+
+    free(array);
+}
+
+
 
 int main(void)
 {
@@ -46,12 +140,20 @@ int main(void)
     
     int telefone;
     char nome[80];
-    char linha[1000];
-    while (fgets(linha, 1000, responsaveis_e_criancas))
+    int doc;
+    int idade;
+    char sexo[10];
+    
+    while (fscanf(responsaveis_e_criancas, "%s %d", nome, &telefone) == 2) 
     {
-        fscanf(" %[^\n]", nome);
-        fscanf("%d", telefone);
-        
+        char nome_crianca[100];
+        int idade, doc;
+        char sexo[10];
+
+        while (fscanf(responsaveis_e_criancas, "%s %d %d %s", nome_crianca, &idade, &doc, sexo) == 4) 
+        {
+                adicionar_crianca(responsavel, nome_crianca, idade, doc, sexo);
+        }
     }
 
     while (1)
@@ -65,7 +167,7 @@ int main(void)
         char nome1[80];
         int telefone;
 
-        char nome2;
+        char nome2[80];
         
         switch (opcao)
         {
@@ -79,7 +181,7 @@ int main(void)
         
         case 2:
             printf("Nome do responsável: \n");
-            scanf(" %[^\n]79", nome2);
+            scanf(" %[^\n]", nome2);
             excluir_responsavel(&responsavel, nome2);
             break;
 
@@ -100,12 +202,9 @@ int main(void)
             break;
 
         case 8:
-            /*função ordena*/
-            while (responsavel != NULL) {
-                fprintf(responsaveis_e_criancas, "%d\t%[^\n]\n", &responsavel->telefone, responsavel->nome);
-                
-                responsavel = responsavel->proximo;
-            }
+            ordenar_lista(&responsavel);
+            ordenar_criancas(&responsavel->crianca);
+            /*parte para passar lista ordenada pro arquivo*/
 
             return 0;
             break;

@@ -5,7 +5,6 @@
 
 
 
-
 void adicionar_responsavel(char nome[80], int telefone, Responsavel **responsavel)
 {
     Responsavel *resp = (Responsavel*)malloc(sizeof(Responsavel));

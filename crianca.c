@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 
-struct crianca{
+typedef struct crianca{
     char nome[50];
     int idade;
     int doc;
     char sexo[10];
-    Crianca *prox;
-};
+    struct crianca *prox;
+}Crianca;
 
 
 Crianca *cria_crianca(void){

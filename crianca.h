@@ -1,5 +1,6 @@
 typedef struct crianca Crianca;
 
+
 void menu_crianca(void);
 
 Crianca *cria_crianca(void);
