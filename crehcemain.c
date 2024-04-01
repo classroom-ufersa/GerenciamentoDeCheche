@@ -3,6 +3,15 @@
 #include <string.h>
 #include "responsavel.h"
 
+void menu_crianca(){
+    printf("== MENU ==\n");
+    printf("1 - Adicionar crianca\n");
+    printf("2 - Remover crianca\n");
+    printf("3 - Edita os dados da crianca\n");
+    printf("4 - imprimir dados\n");
+    printf("0 - SAIR\n");
+}
+
 void menu()
 {
     printf("Bem vindo ao gerenciamento da creche Praxedes, escolha uma opção:\n");

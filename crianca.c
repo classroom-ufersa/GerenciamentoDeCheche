@@ -11,14 +11,6 @@ struct crianca{
     Crianca *prox;
 };
 
-void menu_crianca(){
-    printf("== MENU ==\n");
-    printf("1 - Adicionar crianca\n");
-    printf("2 - Remover crianca\n");
-    printf("3 - Edita os dados da crianca\n");
-    printf("4 - imprimir dados\n");
-    printf("0 - SAIR\n");
-}
 
 Crianca *cria_crianca(void){
     return NULL;
@@ -94,12 +86,6 @@ Crianca *edita_crianca(Crianca *c, char nome[50], char Nnome[50], int idade, int
     return c;
 }
 
-void imprime_dados(Crianca *c){
-    Crianca *p;
-    for(p = c; p != NULL; p = p->prox){
-        printf("\nNome: %s\nIdade: %d\nDocumento: %d\n Sexo: %s\n", p->nome, p->idade, p->doc, p->sexo);
-    }
-}
 void libera_crianca(Crianca *c){
     Crianca *p = c;
     while(p != NULL) {
