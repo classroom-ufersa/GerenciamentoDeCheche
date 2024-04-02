@@ -4,13 +4,7 @@
 #include "responsavel.h"
 #include "crianca.h"
 
-typedef struct crianca{
-    char nome[50];
-    int idade;
-    int doc;
-    char sexo[10];
-    struct crianca *proximo;
-}Crianca;
+
 
 void menu_crianca(){
     printf("== MENU ==\n");
@@ -20,6 +14,8 @@ void menu_crianca(){
     printf("4 - imprimir dados\n");
     printf("0 - SAIR\n");
 }
+
+
 
 void menu()
 {
@@ -36,11 +32,15 @@ void menu()
 }
 
 
+
+
 int comparar_criancas(const void *a, const void *b) {
     const Crianca *crianca1 = (const Crianca *)a;
     const Crianca *crianca2 = (const Crianca *)b;
     return strcmp(crianca1->nome, crianca2->nome);
 }
+
+
 
 
 void ordenar_criancas(Crianca **lista) {
@@ -81,11 +81,15 @@ void ordenar_criancas(Crianca **lista) {
 }
 
 
+
+
 int comparar_responsaveis(const void *a, const void *b) {
     const Responsavel *resp1 = (const Responsavel *)a;
     const Responsavel *resp2 = (const Responsavel *)b;
     return strcmp(resp1->nome, resp2->nome);
 }
+
+
 
 void ordenar_lista(Responsavel **lista) {
     
@@ -122,6 +126,35 @@ void ordenar_lista(Responsavel **lista) {
 
 
 
+void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_responsaveis) 
+{
+    Responsavel *responsavel_atual = lista_responsaveis;
+
+    
+    while (responsavel_atual != NULL) 
+    {
+        
+        fprintf(responsaveis_e_criancas, "%s %d\n", responsavel_atual->nome, responsavel_atual->telefone);
+
+        struct crianca *crianca_atual = responsavel_atual->crianca;
+
+        
+        while (crianca_atual != NULL) 
+        {
+            
+            fprintf(responsaveis_e_criancas, "%s %d %d %s\n", crianca_atual->nome, crianca_atual->idade, crianca_atual->doc, crianca_atual->sexo);
+            crianca_atual = crianca_atual->proximo;
+        }
+
+        responsavel_atual = responsavel_atual->proximo;
+    }
+}
+
+
+
+
+
+
 int main(void)
 {
     FILE *responsaveis_e_criancas = fopen("responsaveisEsuasCriancas.txt", "w");
@@ -140,21 +173,21 @@ int main(void)
     
     int telefone;
     char nome[80];
-    int doc;
-    int idade;
+    char nome_crianca[100];
+    char novo_nome[100];
+    int idade, doc;
     char sexo[10];
     
     while (fscanf(responsaveis_e_criancas, "%s %d", nome, &telefone) == 2) 
     {
-        char nome_crianca[100];
-        int idade, doc;
-        char sexo[10];
+        adicionar_responsavel(nome, telefone, &responsavel);
 
         while (fscanf(responsaveis_e_criancas, "%s %d %d %s", nome_crianca, &idade, &doc, sexo) == 4) 
         {
-                adicionar_crianca(responsavel, nome_crianca, idade, doc, sexo);
+            responsavel->crianca = adiciona_crianca(responsavel->crianca, nome, idade, doc, sexo);
         }
     }
+    listar_responsavel_e_criancas(responsavel);
 
     while (1)
     {
@@ -163,38 +196,59 @@ int main(void)
         menu();
         
         scanf("%d", &opcao);
-
-        char nome1[80];
-        int telefone;
-
-        char nome2[80];
         
         switch (opcao)
         {
         case 1:
             printf("Nome do responsável: \n");
-            scanf(" %[^\n]79", nome1);
+            scanf(" %[^\n]79", nome);
             printf("Telefone do responsável: \n");
             scanf("%d", &telefone);
-            adicionar_responsavel(nome1, telefone, &responsavel);
+            adicionar_responsavel(nome, telefone, &responsavel);
             break;
         
         case 2:
             printf("Nome do responsável: \n");
-            scanf(" %[^\n]", nome2);
-            excluir_responsavel(&responsavel, nome2);
+            scanf(" %[^\n]", nome);
+            excluir_responsavel(&responsavel, nome);
             break;
 
         case 3:
+            printf("Nome: \n");
+            scanf(" %[^\n]", nome);
+            printf("Idade: \n");
+            scanf("%d", &idade);
+            printf("Documento: \n");
+            scanf("%d", &doc);
+            printf("Sexo: \n");
+            scanf(" %[^\n]", sexo);
+            responsavel->crianca = adiciona_crianca(responsavel->crianca, nome, idade, doc, sexo);
             break;
 
         case 4:
+            printf("Digite o nome da criança: \n");
+            scanf(" %[^\n]", nome);
+            responsavel->crianca = remove_crianca(responsavel->crianca, nome);
             break;
 
         case 5:
+            printf("Nome: \n");
+            scanf(" %[^\n]", nome);
+            printf("Novo nome: \n");
+            scanf(" %[^\n]", novo_nome);
+            printf("Idade: \n");
+            scanf("%d", &idade);
+            printf("Documento: \n");
+            scanf("%d", &doc);
+            printf("Sexo: \n");
+            scanf(" %[^\n]", sexo);
+            responsavel->crianca = edita_crianca(responsavel->crianca, nome, novo_nome, idade, doc, sexo);
             break;
 
         case 6:
+            printf("Nome: \n");
+            scanf(" %[^\n]", nome);
+            responsavel->crianca = busca_crianca(responsavel->crianca, nome);
             break;
 
         case 7:
@@ -204,7 +258,7 @@ int main(void)
         case 8:
             ordenar_lista(&responsavel);
             ordenar_criancas(&responsavel->crianca);
-            /*parte para passar lista ordenada pro arquivo*/
+            escrever_para_arquivo(responsaveis_e_criancas, responsavel);
 
             return 0;
             break;

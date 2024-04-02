@@ -3,16 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct crianca{
-    char nome[50];
-    int idade;
-    int doc;
-    char sexo[10];
-    struct crianca *prox;
-}Crianca;
 
-
-Crianca *cria_crianca(void){
+Crianca *cria_crianca(){
     return NULL;
 }
 
@@ -26,14 +18,14 @@ Crianca *adiciona_crianca(Crianca *c, char nome[50], int idade, int doc, char se
     novo->idade = idade;
     novo->doc = doc;
     strcpy(novo->sexo, sexo);
-    novo->prox = c;
+    novo->proximo = c;
     
     return novo;
 }
 
 Crianca *busca_crianca(Crianca *c, char nome[100]){
     Crianca *p;
-    for(p = c; p != NULL; p = p->prox){
+    for(p = c; p != NULL; p = p->proximo){
         if(strcmp(p->nome, nome) == 0){
             return p;
         }
@@ -47,14 +39,14 @@ Crianca *remove_crianca(Crianca *c, char nome[100]){
     
     while(p != NULL && strcmp(p->nome, nome) != 0){
         ant = p;
-        p = p->prox;
+        p = p->proximo;
     }
     
     if(ant == NULL){
-        c = p->prox;
+        c = p->proximo;
     }
     else{
-        ant->prox = p->prox;
+        ant->proximo = p->proximo;
     }
     
     free(p);
@@ -62,7 +54,7 @@ Crianca *remove_crianca(Crianca *c, char nome[100]){
 
 }
 
-Crianca *edita_crianca(Crianca *c, char nome[50], char Nnome[50], int idade, int doc, char sexo[10]){
+Crianca *edita_crianca(Crianca *c, char nome[100], char Nnome[100], int idade, int doc, char sexo[10]){
     Crianca *p = busca_crianca(c, nome);
 
     if(p == NULL){
@@ -89,7 +81,7 @@ Crianca *edita_crianca(Crianca *c, char nome[50], char Nnome[50], int idade, int
 void libera_crianca(Crianca *c){
     Crianca *p = c;
     while(p != NULL) {
-        Crianca *t = p->prox;
+        Crianca *t = p->proximo;
         free(p);
         p = t;
     }

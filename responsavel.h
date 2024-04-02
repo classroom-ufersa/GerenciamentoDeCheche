@@ -6,7 +6,7 @@ typedef struct responsavel
 {
     char nome[80];
     int telefone;
-    struct crianca *crianca;
+    Crianca *crianca;
     struct responsavel *proximo;
 
 }Responsavel;
