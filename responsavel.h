@@ -1,10 +1,12 @@
+#include "crianca.h"
+
 typedef struct responsavel Responsavel;
 
 typedef struct responsavel
 {
     char nome[80];
     int telefone;
-    /*aqui colocar uma lista encadeada de crianças*/
+    Crianca *crianca;
     struct responsavel *proximo;
 
 }Responsavel;

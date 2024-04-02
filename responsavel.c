@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "responsavel.h"
-
-
+#include "crianca.h"
 
 
 void adicionar_responsavel(char nome[80], int telefone, Responsavel **responsavel)
@@ -12,6 +11,7 @@ void adicionar_responsavel(char nome[80], int telefone, Responsavel **responsave
     strcpy(resp->nome, nome);
     resp->telefone = telefone;
     resp->proximo = NULL;
+    resp->crianca = NULL;
         
     if (*responsavel == NULL)
     {
@@ -68,12 +68,21 @@ void excluir_responsavel(Responsavel **responsavel, char nome[80])
 void listar_responsavel_e_criancas(Responsavel *responsavel)
 {
     Responsavel *pont1;
-    Responsavel *pont2;
+    Crianca *pont2;
     for (pont1 = responsavel; pont1 != NULL; pont1 = pont1->proximo)
     {
-        printf("Nome: %[^\n]79", pont1->nome);
+        printf("Nome: %s", pont1->nome);
         printf("Numero: %d", pont1->telefone);
-        /*Nesse espaffo ficará um loop for para impressão das criançãs sob cuidade do responsável em questão*/
+        
+        for (pont2 = pont1->crianca; pont2 != NULL; pont2 = pont2->proximo)
+        {
+            printf("Nome: %s", pont2->nome);
+            printf("Documento: %d", pont2->doc);
+            printf("Sexo: %s", pont2->sexo);
+            printf("Idade: %d", pont2->idade);
+            
+        }
+        
     }
     
 }
