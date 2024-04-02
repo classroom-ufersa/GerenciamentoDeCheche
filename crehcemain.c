@@ -16,6 +16,35 @@ void menu_crianca(){
 }
 
 
+int verifica_nome(char nome[100])
+{
+    int i;
+    for (i = 0; nome[i] != '\0'; i++)
+    {
+        int c = nome[i];
+        if ('Z' < c || c < 'a')
+        {
+            return 0;
+        }
+    }
+    return 1;
+    
+}
+
+
+void converte_caracteres(char nome[100])
+{
+    int i;
+    for (i = 0; nome[i] != '\0'; i++)
+    {
+        int c = nome[i];
+        if ('A' <= c && c <= 'Z')
+        {
+            nome[i] = c - 'A' + 'a';
+        }
+    }
+}
+
 
 void menu()
 {
@@ -192,9 +221,7 @@ int main(void)
     while (1)
     {
         int opcao = 0;
-        
         menu();
-        
         scanf("%d", &opcao);
         
         switch (opcao)
@@ -202,9 +229,18 @@ int main(void)
         case 1:
             printf("Nome do responsável: \n");
             scanf(" %[^\n]79", nome);
-            printf("Telefone do responsável: \n");
-            scanf("%d", &telefone);
-            adicionar_responsavel(nome, telefone, &responsavel);
+
+            if (verifica_nome(nome))
+            {
+                converte_caracteres(nome);
+                printf("Telefone do responsável: \n");
+                scanf("%d", &telefone);
+                adicionar_responsavel(nome, telefone, &responsavel);
+            }
+            else
+            {
+                printf("Nome invalido!\n");
+            }
             break;
         
         case 2:
@@ -216,13 +252,22 @@ int main(void)
         case 3:
             printf("Nome: \n");
             scanf(" %[^\n]", nome);
-            printf("Idade: \n");
-            scanf("%d", &idade);
-            printf("Documento: \n");
-            scanf("%d", &doc);
-            printf("Sexo: \n");
-            scanf(" %[^\n]", sexo);
-            responsavel->crianca = adiciona_crianca(responsavel->crianca, nome, idade, doc, sexo);
+
+            if (verifica_nome(nome))
+            {
+                converte_caracteres(nome);
+                printf("Idade: \n");
+                scanf("%d", &idade);
+                printf("Documento: \n");
+                scanf("%d", &doc);
+                printf("Sexo: \n");
+                scanf(" %[^\n]", sexo);
+                responsavel->crianca = adiciona_crianca(responsavel->crianca, nome, idade, doc, sexo);
+            }
+            else
+            {
+                printf("Nome invalido!\n");
+            }
             break;
 
         case 4:
@@ -236,13 +281,22 @@ int main(void)
             scanf(" %[^\n]", nome);
             printf("Novo nome: \n");
             scanf(" %[^\n]", novo_nome);
-            printf("Idade: \n");
-            scanf("%d", &idade);
-            printf("Documento: \n");
-            scanf("%d", &doc);
-            printf("Sexo: \n");
-            scanf(" %[^\n]", sexo);
-            responsavel->crianca = edita_crianca(responsavel->crianca, nome, novo_nome, idade, doc, sexo);
+            
+            if (verifica_nome(nome) + verifica_nome(novo_nome) == 2)
+            {
+                converte_caracteres(nome);
+                printf("Idade: \n");
+                scanf("%d", &idade);
+                printf("Documento: \n");
+                scanf("%d", &doc);
+                printf("Sexo: \n");
+                scanf(" %[^\n]", sexo);
+                responsavel->crianca = edita_crianca(responsavel->crianca, nome, novo_nome, idade, doc, sexo);  
+            }
+            else
+            {
+                printf("Nome invalido!\n");
+            }
             break;
 
         case 6:
@@ -259,7 +313,6 @@ int main(void)
             ordenar_lista(&responsavel);
             ordenar_criancas(&responsavel->crianca);
             escrever_para_arquivo(responsaveis_e_criancas, responsavel);
-
             return 0;
             break;
         
@@ -269,7 +322,5 @@ int main(void)
         }
     }
     
-    
-
     return 0;
 }
