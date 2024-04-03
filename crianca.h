@@ -15,9 +15,9 @@ void menu_crianca(void);
 
 Crianca *cria_crianca();
 
-Crianca *adiciona_crianca(Crianca *c, char nome[50], int idade, int doc, char sexo[10]);
+Crianca *adiciona_crianca(Crianca *c, char nome[100], int idade, int doc, char sexo[10]);
 
-Crianca *edita_crianca(Crianca *c, char nome[50], char Nnome[50], int idade, int doc, char sexo[10]);
+Crianca *edita_crianca(Crianca *c, char nome[100], char Nnome[50], int idade, int doc, char sexo[10]);
 
 Crianca *remove_crianca(Crianca *c, char nome[100]);
 

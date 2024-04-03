@@ -8,7 +8,7 @@ Crianca *cria_crianca(){
     return NULL;
 }
 
-Crianca *adiciona_crianca(Crianca *c, char nome[50], int idade, int doc, char sexo[10]){
+Crianca *adiciona_crianca(Crianca *c, char nome[100], int idade, int doc, char sexo[10]){
     Crianca *novo = (Crianca*) malloc(sizeof(Crianca));
     if(novo == NULL){
         printf("Erro na alocacao de crianca!\n");

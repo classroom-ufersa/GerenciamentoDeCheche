@@ -5,14 +5,21 @@
 #include "crianca.h"
 
 
-void adicionar_responsavel(char nome[80], int telefone, Responsavel **responsavel)
+void adicionar_responsavel(char nome[100], int telefone, Responsavel **responsavel)
 {
+
     Responsavel *resp = (Responsavel*)malloc(sizeof(Responsavel));
+    if (resp == NULL)
+    {
+        printf("Deu ruim\n");
+        exit(1);
+    }
+    
     strcpy(resp->nome, nome);
     resp->telefone = telefone;
     resp->proximo = NULL;
     resp->crianca = NULL;
-        
+
     if (*responsavel == NULL)
     {
         *responsavel = resp;
@@ -89,7 +96,7 @@ void listar_responsavel_e_criancas(Responsavel *responsavel)
 
 Responsavel *busca_responsavel(Responsavel *r, char nome[80]){
     Responsavel *p;
-    for(p = r; p != NULL; p = p->prox){
+    for(p = r; p != NULL; p = p->proximo){
         if(strcmp(p->nome, nome) == 0){
             return p;
         }

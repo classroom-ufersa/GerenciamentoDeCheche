@@ -22,13 +22,12 @@ int verifica_nome(char nome[100])
     for (i = 0; nome[i] != '\0'; i++)
     {
         int c = nome[i];
-        if ('Z' < c || c < 'a')
+        if (!((('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')) || c == ' '))
         {
             return 0;
         }
     }
     return 1;
-    
 }
 
 
@@ -49,15 +48,15 @@ void converte_caracteres(char nome[100])
 void menu()
 {
     printf("Bem vindo ao gerenciamento da creche Praxedes, escolha uma opção:\n");
-    printf("------------------------------------------------------------------");
-    printf("Escolha 1, para adicionar responsável!");
-    printf("Escolha 2, para remover responsável!");
-    printf("Escolha 3, para adicionar criança!");
-    printf("Escolha 4, para remover criança!");
-    printf("Escolha 5, para editar informações da criança!");
-    printf("Escolha 6, para buscar criança por nome!");
-    printf("Escolha 7, para listar responsáveis e suas crianças!");
-    printf("Escolha 8, para sair!");
+    printf("\n------------------------------------------------------------------\n");
+    printf("Escolha 1, para adicionar responsável!\n");
+    printf("Escolha 2, para remover responsável!\n");
+    printf("Escolha 3, para adicionar criança!\n");
+    printf("Escolha 4, para remover criança!\n");
+    printf("Escolha 5, para editar informações da criança!\n");
+    printf("Escolha 6, para buscar criança por nome!\n");
+    printf("Escolha 7, para listar responsáveis e suas crianças!\n");
+    printf("Escolha 8, para sair!\n");
 }
 
 
@@ -163,7 +162,7 @@ void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_res
     while (responsavel_atual != NULL) 
     {
         
-        fprintf(responsaveis_e_criancas, "%s %d\n", responsavel_atual->nome, responsavel_atual->telefone);
+        fprintf(responsaveis_e_criancas, "Responsavel:\tNome:\t%s\tTelefone:\t%d\t", responsavel_atual->nome, responsavel_atual->telefone);
 
         struct crianca *crianca_atual = responsavel_atual->crianca;
 
@@ -171,7 +170,7 @@ void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_res
         while (crianca_atual != NULL) 
         {
             
-            fprintf(responsaveis_e_criancas, "%s %d %d %s\n", crianca_atual->nome, crianca_atual->idade, crianca_atual->doc, crianca_atual->sexo);
+            fprintf(responsaveis_e_criancas, "\t\tCriancas:\t\tNome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s", crianca_atual->nome, crianca_atual->idade, crianca_atual->doc, crianca_atual->sexo);
             crianca_atual = crianca_atual->proximo;
         }
 
@@ -186,7 +185,7 @@ void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_res
 
 int main(void)
 {
-    FILE *responsaveis_e_criancas = fopen("responsaveisEsuasCriancas.txt", "w");
+    FILE *responsaveis_e_criancas = fopen("responsaveisEsuasCriancas.txt", "r");
     if (responsaveis_e_criancas == NULL)
     {
         printf("Erro ao abrir arquivo!");
@@ -194,28 +193,25 @@ int main(void)
     }
 
     Responsavel *responsavel;
-    if (responsavel == NULL)
-    {
-        printf("Erro ao alocar responsável!");
-        exit(1);
-    }
+    responsavel = NULL;
     
     int telefone;
-    char nome[80];
+    char nome[100];
     char nome_crianca[100];
     char novo_nome[100];
     int idade, doc;
     char sexo[10];
     
-    while (fscanf(responsaveis_e_criancas, "%s %d", nome, &telefone) == 2) 
+    while (fscanf(responsaveis_e_criancas, "%s %d", nome, &telefone) == 2)
     {
         adicionar_responsavel(nome, telefone, &responsavel);
-
-        while (fscanf(responsaveis_e_criancas, "%s %d %d %s", nome_crianca, &idade, &doc, sexo) == 4) 
+        if(fscanf(responsaveis_e_criancas, "%s %d %d %s", nome_crianca, &idade, &doc, sexo) == 4)
         {
-            responsavel->crianca = adiciona_crianca(responsavel->crianca, nome, idade, doc, sexo);
+            responsavel->crianca = adiciona_crianca(responsavel->crianca, nome_crianca, idade, doc, sexo);
         }
+        
     }
+    
     listar_responsavel_e_criancas(responsavel);
 
     while (1)
@@ -228,7 +224,7 @@ int main(void)
         {
         case 1:
             printf("Nome do responsável: \n");
-            scanf(" %[^\n]79", nome);
+            scanf(" %[^\n]", nome);
 
             if (verifica_nome(nome))
             {
@@ -310,9 +306,21 @@ int main(void)
             break;
 
         case 8:
+
+            fclose(responsaveis_e_criancas);
+            FILE* arquivo2 = fopen("responsaveisEsuasCriancas.txt", "w");
+            if (arquivo2 == NULL)
+            {
+                exit(1);
+            }
+            
             ordenar_lista(&responsavel);
             ordenar_criancas(&responsavel->crianca);
-            escrever_para_arquivo(responsaveis_e_criancas, responsavel);
+            escrever_para_arquivo(arquivo2, responsavel);
+            fclose(arquivo2);
+            free(responsavel->crianca);
+            free(responsavel);
+
             return 0;
             break;
         
