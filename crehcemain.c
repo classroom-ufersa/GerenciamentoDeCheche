@@ -15,6 +15,21 @@ void menu_crianca(){
     printf("0 - SAIR\n");
 }
 
+Responsavel *busca(Responsavel* responsavel, char nome[100])
+{
+    Responsavel *pont;
+    for (pont = responsavel; pont != NULL; pont = pont->proximo)
+    {
+        if (strcmp(pont->nome, nome) == 0)
+        {
+            return pont;
+        }
+        
+    }
+    return NULL;
+    
+}
+
 
 int verifica_nome(char nome[100])
 {
@@ -62,94 +77,65 @@ void menu()
 
 
 
-int comparar_criancas(const void *a, const void *b) {
-    const Crianca *crianca1 = (const Crianca *)a;
-    const Crianca *crianca2 = (const Crianca *)b;
-    return strcmp(crianca1->nome, crianca2->nome);
-}
+void ordenar(Responsavel **lista_responsaveis) {
+    if (*lista_responsaveis == NULL) {
+        return;
+    }
 
+    Responsavel *atual = *lista_responsaveis;
+    Responsavel *anterior = NULL;
+    Responsavel *proximo;
 
+    // Bubble sort para ordenar os responsáveis por nome
+    while (atual->proximo != NULL) {
+        proximo = atual->proximo;
 
+        if (strcmp(atual->nome, proximo->nome) > 0) {
+            atual->proximo = proximo->proximo;
+            proximo->proximo = atual;
 
-void ordenar_criancas(Crianca **lista) {
-    
-    int tamanho = 0;
-    Crianca *atual = *lista;
+            if (anterior == NULL) {
+                *lista_responsaveis = proximo;
+            } else {
+                anterior->proximo = proximo;
+            }
+
+            anterior = proximo;
+        } else {
+            anterior = atual;
+            atual = proximo;
+        }
+    }
+
+    // Ordenar as crianças para cada responsável
+    atual = *lista_responsaveis;
     while (atual != NULL) {
-        tamanho++;
+        Crianca *crianca_atual = atual->crianca;
+        Crianca *ant_crianca = NULL;
+
+        // Bubble sort para ordenar as crianças por nome
+        while (crianca_atual != NULL && crianca_atual->proximo != NULL) {
+            Crianca *proxCrianca = crianca_atual->proximo;
+
+            if (strcmp(crianca_atual->nome, proxCrianca->nome) > 0) {
+                crianca_atual->proximo = proxCrianca->proximo;
+                proxCrianca->proximo = crianca_atual;
+
+                if (ant_crianca == NULL) {
+                    atual->crianca = proxCrianca;
+                } else {
+                    ant_crianca->proximo = proxCrianca;
+                }
+
+                ant_crianca = proxCrianca;
+            } else {
+                ant_crianca = crianca_atual;
+                crianca_atual = proxCrianca;
+            }
+        }
+
         atual = atual->proximo;
     }
-
-    
-    Crianca **array = (Crianca **)malloc(tamanho * sizeof(Crianca *));
-    if (array == NULL) {
-        fprintf(stderr, "Erro: Falha ao alocar memória\n");
-        exit(EXIT_FAILURE);
-    }
-
-    
-    atual = *lista;
-    for (int i = 0; i < tamanho; i++) {
-        array[i] = atual;
-        atual = atual->proximo;
-    }
-
-    
-    qsort(array, tamanho, sizeof(Crianca *), comparar_criancas);
-
-    
-    *lista = array[0];
-    for (int i = 0; i < tamanho - 1; i++) {
-        array[i]->proximo = array[i + 1];
-    }
-    array[tamanho - 1]->proximo = NULL;
-
-    
-    free(array);
-}
-
-
-
-
-int comparar_responsaveis(const void *a, const void *b) {
-    const Responsavel *resp1 = (const Responsavel *)a;
-    const Responsavel *resp2 = (const Responsavel *)b;
-    return strcmp(resp1->nome, resp2->nome);
-}
-
-
-
-void ordenar_lista(Responsavel **lista) {
-    
-    int tamanho = 0;
-    Responsavel *atual = *lista;
-    while (atual != NULL) {
-        tamanho++;
-        atual = atual->proximo;
-    }
-
-
-    Responsavel **array = (Responsavel **)malloc(tamanho * sizeof(Responsavel *));
-    if (array == NULL) {
-        fprintf(stderr, "Erro: Falha ao alocar memória\n");
-        exit(EXIT_FAILURE);
-    }
-
-    atual = *lista;
-    for (int i = 0; i < tamanho; i++) {
-        array[i] = atual;
-        atual = atual->proximo;
-    }
-
-    qsort(array, tamanho, sizeof(Responsavel *), comparar_responsaveis);
-
-    *lista = array[0];
-    for (int i = 0; i < tamanho - 1; i++) {
-        array[i]->proximo = array[i + 1];
-    }
-    array[tamanho - 1]->proximo = NULL;
-
-    free(array);
 }
 
 
@@ -161,16 +147,19 @@ void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_res
     
     while (responsavel_atual != NULL) 
     {
-        
-        fprintf(responsaveis_e_criancas, "Responsavel:\tNome:\t%s\tTelefone:\t%d\t", responsavel_atual->nome, responsavel_atual->telefone);
+        fprintf(responsaveis_e_criancas, "Responsavel:\n");
+        fprintf(responsaveis_e_criancas, "Nome:\t%s\tTelefone:\t%d\n", responsavel_atual->nome, responsavel_atual->telefone);
 
         struct crianca *crianca_atual = responsavel_atual->crianca;
 
+        if (crianca_atual != NULL)
+        {
+            fprintf(responsaveis_e_criancas, "Criancas:\n");
+        }
         
         while (crianca_atual != NULL) 
         {
-            
-            fprintf(responsaveis_e_criancas, "\t\tCriancas:\t\tNome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s", crianca_atual->nome, crianca_atual->idade, crianca_atual->doc, crianca_atual->sexo);
+            fprintf(responsaveis_e_criancas, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", crianca_atual->nome, crianca_atual->idade, crianca_atual->doc, crianca_atual->sexo);
             crianca_atual = crianca_atual->proximo;
         }
 
@@ -197,20 +186,30 @@ int main(void)
     
     int telefone;
     char nome[100];
+    char nome_respondavel[100];
     char nome_crianca[100];
     char novo_nome[100];
     int idade, doc;
     char sexo[10];
-    
+    Responsavel *responsavel_temp = NULL;
+
     while (fscanf(responsaveis_e_criancas, "%s %d", nome, &telefone) == 2)
     {
-        adicionar_responsavel(nome, telefone, &responsavel);
-        if(fscanf(responsaveis_e_criancas, "%s %d %d %s", nome_crianca, &idade, &doc, sexo) == 4)
-        {
-            responsavel->crianca = adiciona_crianca(responsavel->crianca, nome_crianca, idade, doc, sexo);
-        }
         
+        adicionar_responsavel(nome, telefone, &responsavel);
+
+        
+        while (fscanf(responsaveis_e_criancas, "%s %d %d %s", nome_crianca, &idade, &doc, sexo) == 4)
+        {
+            
+            responsavel_temp->crianca = adiciona_crianca(responsavel_temp->crianca, nome_crianca, idade, doc, sexo);
+        }
+
+        
+        responsavel->crianca = responsavel_temp->crianca;
+        responsavel_temp->crianca = NULL; 
     }
+    
     
     listar_responsavel_e_criancas(responsavel);
 
@@ -246,9 +245,18 @@ int main(void)
             break;
 
         case 3:
-            printf("Nome: \n");
+            printf("Nome da crianca: \n");
             scanf(" %[^\n]", nome);
+            printf("Nome do responsavel: \n");
+            scanf(" %[^\n]", nome_respondavel);
+            Responsavel *ref = busca(responsavel, nome_respondavel);
 
+            if (ref == NULL)
+            {
+                printf("Responsavel nao encontrado!\n");
+                break;
+            }
+            
             if (verifica_nome(nome))
             {
                 converte_caracteres(nome);
@@ -258,7 +266,7 @@ int main(void)
                 scanf("%d", &doc);
                 printf("Sexo: \n");
                 scanf(" %[^\n]", sexo);
-                responsavel->crianca = adiciona_crianca(responsavel->crianca, nome, idade, doc, sexo);
+                ref->crianca = adiciona_crianca(ref->crianca, nome, idade, doc, sexo);
             }
             else
             {
@@ -314,8 +322,7 @@ int main(void)
                 exit(1);
             }
             
-            ordenar_lista(&responsavel);
-            ordenar_criancas(&responsavel->crianca);
+            ordenar(&responsavel);
             escrever_para_arquivo(arquivo2, responsavel);
             fclose(arquivo2);
             free(responsavel->crianca);
