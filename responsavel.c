@@ -78,15 +78,15 @@ void listar_responsavel_e_criancas(Responsavel *responsavel)
     Crianca *pont2;
     for (pont1 = responsavel; pont1 != NULL; pont1 = pont1->proximo)
     {
-        printf("Nome: %s", pont1->nome);
-        printf("Numero: %d", pont1->telefone);
+        printf("Nome: %s\t", pont1->nome);
+        printf("Numero: %d\n", pont1->telefone);
         
         for (pont2 = pont1->crianca; pont2 != NULL; pont2 = pont2->proximo)
         {
-            printf("Nome: %s", pont2->nome);
-            printf("Documento: %d", pont2->doc);
-            printf("Sexo: %s", pont2->sexo);
-            printf("Idade: %d", pont2->idade);
+            printf("Nome: %s\t", pont2->nome);
+            printf("Documento: %d\t", pont2->doc);
+            printf("Sexo: %s\t", pont2->sexo);
+            printf("Idade: %d\n", pont2->idade);
             
         }
         

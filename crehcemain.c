@@ -86,7 +86,7 @@ void ordenar(Responsavel **lista_responsaveis) {
     Responsavel *anterior = NULL;
     Responsavel *proximo;
 
-    // Bubble sort para ordenar os responsáveis por nome
+    
     while (atual->proximo != NULL) {
         proximo = atual->proximo;
 
@@ -107,13 +107,13 @@ void ordenar(Responsavel **lista_responsaveis) {
         }
     }
 
-    // Ordenar as crianças para cada responsável
+    
     atual = *lista_responsaveis;
     while (atual != NULL) {
         Crianca *crianca_atual = atual->crianca;
         Crianca *ant_crianca = NULL;
 
-        // Bubble sort para ordenar as crianças por nome
+        
         while (crianca_atual != NULL && crianca_atual->proximo != NULL) {
             Crianca *proxCrianca = crianca_atual->proximo;
 
@@ -168,6 +168,37 @@ void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_res
 }
 
 
+void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
+    char linha[1000]; // Assumindo que cada linha do arquivo terá no máximo 1000 caracteres
+
+    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+        if (strcmp(linha, "Responsavel:\n") == 0) {
+            char nome_responsavel[100];
+            int telefone_responsavel;
+            fscanf(arquivo, "Nome:\t%s\tTelefone:\t%d\n", nome_responsavel, &telefone_responsavel);
+            adicionar_responsavel(nome_responsavel, telefone_responsavel, lista_responsaveis);
+
+            // Ler e adicionar as crianças associadas a este responsável
+            fgets(linha, sizeof(linha), arquivo); // Leitura da linha "Criancas:\n"
+            while (fgets(linha, sizeof(linha), arquivo) != NULL && strcmp(linha, "Responsavel:\n") != 0) {
+                char nome_crianca[100];
+                int idade_crianca, doc_crianca;
+                char sexo_crianca[10];
+                sscanf(linha, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", nome_crianca, &idade_crianca, &doc_crianca, sexo_crianca);
+                // Encontrar o último responsável na lista
+                Responsavel *ultimo_responsavel = *lista_responsaveis;
+                while (ultimo_responsavel->proximo != NULL) {
+                    ultimo_responsavel = ultimo_responsavel->proximo;
+                }
+                // Adicionar a criança ao último responsável
+                ultimo_responsavel->crianca = adiciona_crianca(ultimo_responsavel->crianca, nome_crianca, idade_crianca, doc_crianca, sexo_crianca);
+            }
+        }
+    }
+}
+
+
+
 
 
 
@@ -187,28 +218,12 @@ int main(void)
     int telefone;
     char nome[100];
     char nome_respondavel[100];
-    char nome_crianca[100];
     char novo_nome[100];
     int idade, doc;
     char sexo[10];
-    Responsavel *responsavel_temp = NULL;
-
-    while (fscanf(responsaveis_e_criancas, "%s %d", nome, &telefone) == 2)
-    {
-        
-        adicionar_responsavel(nome, telefone, &responsavel);
-
-        
-        while (fscanf(responsaveis_e_criancas, "%s %d %d %s", nome_crianca, &idade, &doc, sexo) == 4)
-        {
-            
-            responsavel_temp->crianca = adiciona_crianca(responsavel_temp->crianca, nome_crianca, idade, doc, sexo);
-        }
-
-        
-        responsavel->crianca = responsavel_temp->crianca;
-        responsavel_temp->crianca = NULL; 
-    }
+    
+    ler_do_arquivo(responsaveis_e_criancas, &responsavel);
+    
     
     
     listar_responsavel_e_criancas(responsavel);
