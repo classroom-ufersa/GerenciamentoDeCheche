@@ -78,65 +78,80 @@ void menu()
 
 
 void ordenar(Responsavel **lista_responsaveis) {
-    if (*lista_responsaveis == NULL) {
-        return;
+    if (*lista_responsaveis == NULL || (*lista_responsaveis)->proximo == NULL) {
+        return; // Lista vazia ou com apenas um elemento, nada a fazer
     }
 
-    Responsavel *atual = *lista_responsaveis;
-    Responsavel *anterior = NULL;
-    Responsavel *proximo;
+    // Ordenação dos responsáveis pelo nome
+    int trocou;
+    do {
+        trocou = 0;
+        Responsavel *atual = *lista_responsaveis;
+        Responsavel *anterior = NULL;
+        Responsavel *proximo = atual->proximo;
 
-    
-    while (atual->proximo != NULL) {
-        proximo = atual->proximo;
-
-        if (strcmp(atual->nome, proximo->nome) > 0) {
-            atual->proximo = proximo->proximo;
-            proximo->proximo = atual;
-
-            if (anterior == NULL) {
-                *lista_responsaveis = proximo;
-            } else {
-                anterior->proximo = proximo;
-            }
-
-            anterior = proximo;
-        } else {
-            anterior = atual;
-            atual = proximo;
-        }
-    }
-
-    
-    atual = *lista_responsaveis;
-    while (atual != NULL) {
-        Crianca *crianca_atual = atual->crianca;
-        Crianca *ant_crianca = NULL;
-
-        
-        while (crianca_atual != NULL && crianca_atual->proximo != NULL) {
-            Crianca *proxCrianca = crianca_atual->proximo;
-
-            if (strcmp(crianca_atual->nome, proxCrianca->nome) > 0) {
-                crianca_atual->proximo = proxCrianca->proximo;
-                proxCrianca->proximo = crianca_atual;
-
-                if (ant_crianca == NULL) {
-                    atual->crianca = proxCrianca;
+        while (proximo != NULL) {
+            if (strcmp(atual->nome, proximo->nome) > 0) {
+                // Troca de posição
+                trocou = 1;
+                atual->proximo = proximo->proximo;
+                proximo->proximo = atual;
+                if (anterior == NULL) {
+                    *lista_responsaveis = proximo;
                 } else {
-                    ant_crianca->proximo = proxCrianca;
+                    anterior->proximo = proximo;
                 }
-
-                ant_crianca = proxCrianca;
+                // Atualização dos ponteiros
+                anterior = proximo;
+                proximo = atual->proximo;
             } else {
-                ant_crianca = crianca_atual;
-                crianca_atual = proxCrianca;
+                // Avança na lista
+                anterior = atual;
+                atual = proximo;
+                proximo = proximo->proximo;
             }
         }
+    } while (trocou);
 
-        atual = atual->proximo;
+    // Ordenação das crianças de cada responsável pelo nome
+    Responsavel *atual_responsavel = *lista_responsaveis;
+    while (atual_responsavel != NULL) {
+        Crianca *atual_crianca = atual_responsavel->crianca;
+        Crianca *anterior_crianca = NULL;
+        int trocou_crianca;
+
+        do {
+            trocou_crianca = 0;
+            atual_crianca = atual_responsavel->crianca;
+            anterior_crianca = NULL;
+
+            while (atual_crianca != NULL && atual_crianca->proximo != NULL) {
+                Crianca *proxCrianca = atual_crianca->proximo;
+
+                if (strcmp(atual_crianca->nome, proxCrianca->nome) > 0) {
+                    // Troca de posição
+                    trocou_crianca = 1;
+                    atual_crianca->proximo = proxCrianca->proximo;
+                    proxCrianca->proximo = atual_crianca;
+                    if (anterior_crianca == NULL) {
+                        atual_responsavel->crianca = proxCrianca;
+                    } else {
+                        anterior_crianca->proximo = proxCrianca;
+                    }
+                    // Atualização dos ponteiros
+                    anterior_crianca = proxCrianca;
+                } else {
+                    // Avança na lista
+                    anterior_crianca = atual_crianca;
+                    atual_crianca = proxCrianca;
+                }
+            }
+        } while (trocou_crianca);
+
+        atual_responsavel = atual_responsavel->proximo;
     }
 }
+
 
 
 
@@ -171,32 +186,46 @@ void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_res
 void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
     char linha[1000]; // Assumindo que cada linha do arquivo terá no máximo 1000 caracteres
 
+    char nome_responsavel[100];
+    int telefone_responsavel;
+    Responsavel *ultimo_responsavel = NULL; // Para rastrear o último responsável lido
+
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
         if (strcmp(linha, "Responsavel:\n") == 0) {
-            char nome_responsavel[100];
-            int telefone_responsavel;
-            fscanf(arquivo, "Nome:\t%s\tTelefone:\t%d\n", nome_responsavel, &telefone_responsavel);
+            if (fgets(linha, sizeof(linha), arquivo) == NULL) {
+                printf("Erro ao ler dados do responsável!\n");
+                exit(1);
+            }
+            if (sscanf(linha, "Nome:\t%s\tTelefone:\t%d\n", nome_responsavel, &telefone_responsavel) != 2) {
+                printf("Erro ao ler dados do responsável!\n");
+                exit(1);
+            }
             adicionar_responsavel(nome_responsavel, telefone_responsavel, lista_responsaveis);
-
-            // Ler e adicionar as crianças associadas a este responsável
-            fgets(linha, sizeof(linha), arquivo); // Leitura da linha "Criancas:\n"
-            while (fgets(linha, sizeof(linha), arquivo) != NULL && strcmp(linha, "Responsavel:\n") != 0) {
-                char nome_crianca[100];
-                int idade_crianca, doc_crianca;
-                char sexo_crianca[10];
-                sscanf(linha, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", nome_crianca, &idade_crianca, &doc_crianca, sexo_crianca);
-                // Encontrar o último responsável na lista
-                Responsavel *ultimo_responsavel = *lista_responsaveis;
-                while (ultimo_responsavel->proximo != NULL) {
-                    ultimo_responsavel = ultimo_responsavel->proximo;
+            ultimo_responsavel = *lista_responsaveis; // Atualiza o último responsável lido
+            // Limpa a lista de crianças para o novo responsável
+            ultimo_responsavel->crianca = NULL;
+        } else if (strcmp(linha, "Criancas:\n") == 0) {
+            if (ultimo_responsavel == NULL) {
+                printf("Erro: Crianças encontradas sem responsável associado!\n");
+                exit(1);
+            }
+            // Lê as crianças associadas ao último responsável
+            while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+                if (strcmp(linha, "Responsavel:\n") == 0 || strcmp(linha, "Criancas:\n") == 0)
+                    break; // Sai do loop se encontrar um novo bloco de dados
+                char nome_crianca[100], sexo[10];
+                int idade, doc;
+                // Use sscanf para analisar a linha
+                if (sscanf(linha, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", nome_crianca, &idade, &doc, sexo) != 4) {
+                    printf("Erro ao ler dados da criança!\n");
+                    continue; // Ignora esta linha e continua para a próxima
                 }
-                // Adicionar a criança ao último responsável
-                ultimo_responsavel->crianca = adiciona_crianca(ultimo_responsavel->crianca, nome_crianca, idade_crianca, doc_crianca, sexo_crianca);
+                // Adiciona a criança à lista de crianças do responsável atual
+                ultimo_responsavel->crianca = adiciona_crianca(ultimo_responsavel->crianca, nome_crianca, idade, doc, sexo);
             }
         }
     }
 }
-
 
 
 
