@@ -261,7 +261,7 @@ int main(void)
         case 1:
             printf("Nome do responsável: \n");
             scanf(" %[^\n]", nome);
-
+            
             if (verifica_nome(nome))
             {
                 converte_caracteres(nome);
@@ -286,6 +286,7 @@ int main(void)
             scanf(" %[^\n]", nome);
             printf("Nome do responsavel: \n");
             scanf(" %[^\n]", nome_respondavel);
+            converte_caracteres(nome_respondavel);
             Responsavel *ref = busca(responsavel, nome_respondavel);
 
             if (ref == NULL)
