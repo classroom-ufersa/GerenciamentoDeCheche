@@ -15,21 +15,6 @@ void menu_crianca(){
     printf("0 - SAIR\n");
 }
 
-Responsavel *busca(Responsavel* responsavel, char nome[100])
-{
-    Responsavel *pont;
-    for (pont = responsavel; pont != NULL; pont = pont->proximo)
-    {
-        if (strcmp(pont->nome, nome) == 0)
-        {
-            return pont;
-        }
-        
-    }
-    return NULL;
-    
-}
-
 
 int verifica_nome(char nome[100])
 {
@@ -184,11 +169,11 @@ void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_res
 
 
 void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
-    char linha[1000]; // Assumindo que cada linha do arquivo terá no máximo 1000 caracteres
+    char linha[1000]; 
 
     char nome_responsavel[100];
     int telefone_responsavel;
-    Responsavel *ultimo_responsavel = NULL; // Para rastrear o último responsável lido
+    Responsavel *ultimo_responsavel = NULL; 
 
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
         if (strcmp(linha, "Responsavel:\n") == 0) {
@@ -201,31 +186,39 @@ void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
                 exit(1);
             }
             adicionar_responsavel(nome_responsavel, telefone_responsavel, lista_responsaveis);
-            ultimo_responsavel = *lista_responsaveis; // Atualiza o último responsável lido
-            // Limpa a lista de crianças para o novo responsável
-            ultimo_responsavel->crianca = NULL;
+            ultimo_responsavel = busca(*lista_responsaveis, nome_responsavel); 
         } else if (strcmp(linha, "Criancas:\n") == 0) {
             if (ultimo_responsavel == NULL) {
                 printf("Erro: Crianças encontradas sem responsável associado!\n");
                 exit(1);
             }
-            // Lê as crianças associadas ao último responsável
+            
+            int tem_criancas = 0; 
             while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-                if (strcmp(linha, "Responsavel:\n") == 0 || strcmp(linha, "Criancas:\n") == 0)
-                    break; // Sai do loop se encontrar um novo bloco de dados
-                char nome_crianca[100], sexo[10];
-                int idade, doc;
-                // Use sscanf para analisar a linha
-                if (sscanf(linha, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", nome_crianca, &idade, &doc, sexo) != 4) {
-                    printf("Erro ao ler dados da criança!\n");
-                    continue; // Ignora esta linha e continua para a próxima
+                if (strcmp(linha, "Responsavel:\n") == 0) {
+                    break; 
+                } else if (strncmp(linha, "Nome:", 5) == 0) {
+                    char nome_crianca[100], sexo[10];
+                    int idade, doc;
+                    if (sscanf(linha, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", nome_crianca, &idade, &doc, sexo) != 4) {
+                        printf("Erro ao ler dados da criança!\n");
+                        continue; 
+                    }
+                    
+                    ultimo_responsavel->crianca = adiciona_crianca(ultimo_responsavel->crianca, nome_crianca, idade, doc, sexo);
+                    tem_criancas = 1; 
                 }
-                // Adiciona a criança à lista de crianças do responsável atual
-                ultimo_responsavel->crianca = adiciona_crianca(ultimo_responsavel->crianca, nome_crianca, idade, doc, sexo);
+            }
+            if (!tem_criancas) {
+                
+                if (ultimo_responsavel->proximo != NULL) {
+                    ultimo_responsavel = ultimo_responsavel->proximo;
+                }
             }
         }
     }
 }
+
 
 
 
@@ -253,7 +246,7 @@ int main(void)
     
     ler_do_arquivo(responsaveis_e_criancas, &responsavel);
     
-    
+    ordenar(&responsavel);
     
     listar_responsavel_e_criancas(responsavel);
 

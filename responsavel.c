@@ -94,12 +94,17 @@ void listar_responsavel_e_criancas(Responsavel *responsavel)
     
 }
 
-Responsavel *busca_responsavel(Responsavel *r, char nome[80]){
-    Responsavel *p;
-    for(p = r; p != NULL; p = p->proximo){
-        if(strcmp(p->nome, nome) == 0){
-            return p;
+Responsavel *busca(Responsavel* responsavel, char nome[100])
+{
+    Responsavel *pont;
+    for (pont = responsavel; pont != NULL; pont = pont->proximo)
+    {
+        if (strcmp(pont->nome, nome) == 0)
+        {
+            return pont;
         }
+        
     }
     return NULL;
+    
 }
