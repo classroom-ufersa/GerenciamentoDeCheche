@@ -40,8 +40,7 @@ typedef struct responsavel
 }Responsavel;
 ```
 Como cada responsável irá cuidar de várias crianças, foi declarado um ponteiro para a lista das crianças dentro da struct responsavel.
-## Funções
-### Menu 
+## Menu
 Este é o menu principal do programa
 ```c
 void menu()
@@ -56,6 +55,19 @@ void menu()
     printf("Escolha 6, para sair!\n");
 }
 ```
+## Menu criança
+### Menu crianca
+Menu que mostra as opções de manipulação dos dados das crianças dos responsáveis
+```c
+void menu_crianca(){
+    printf("== MENU ==\n");
+    printf("1 - Adicionar crianca\n");
+    printf("2 - Remover crianca\n");
+    printf("3 - Edita os dados da crianca\n");
+    printf("0 - SAIR\n");
+}
+```
+## Funções de manipulação de dados 
 ### Adicionar responsavel
 ```c
 void adicionar_responsavel(char nome[80], int telefone, Responsavel **responsavel)
@@ -178,7 +190,123 @@ Crianca *remove_crianca(Crianca *c, char nome[100]){
 
 }
 ```
+Esta função remove uma criança específica de uma lista endadeada. Para isso, recebe como parâmetro a lista e o nome do indivíduo que será removido. Seu funcionamento é igual ao da função de excluir responsavel.
+### Edita crianca
+```c
+Crianca *edita_crianca(Crianca *c, char nome[100], char Nnome[100], int idade, int doc, char sexo[10]){
+    Crianca *p = busca_crianca(c, nome);
 
+    if(p == NULL){
+        printf("Nome nao encontrado!\n");
+        return c;
+    }
+    else{
+        strcpy(p->nome, Nnome);
+        p->idade = idade;
+        p->doc = doc;
+        strcpy(p->sexo, sexo);
+    }
+    
+    return c;
+}
+```
+Função tem como objetivo atualizar os dados de uma criança na lista. Dessa forma, um ponteiro recebe o nó do sujeito procurado por meio da função de busca_crianca. Se ele for igual a NULL, significa que a criança não foi encontrado, e retorna a lista do jeito que está. Caso contrário, sobreescreve os dados com os novos. 
+## Funções relacionadas ao arquivo.txt
+Essas funções serão responsáveis pela transferência de dados da lista para o arquivo.txt e vice-versa. A declaração deste está explicitada a seguir:
+```c
+FILE *responsaveis_e_criancas = fopen("responsaveisEsuasCriancas.txt", "r");
+    if (responsaveis_e_criancas == NULL)
+    {
+        printf("Erro ao abrir arquivo!");
+        exit(1);
+    }
+```
+### Ler do arquivo
+```c
+void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
+    char linha[1000]; 
+    char nome_responsavel[100];
+    int telefone_responsavel;
+    Responsavel *ultimo_responsavel = NULL; 
+
+    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+        if (strcmp(linha, "Responsavel:\n") == 0) {
+            if (fgets(linha, sizeof(linha), arquivo) == NULL) {
+                printf("Erro ao ler dados do responsável!\n");
+                exit(1);
+            }
+            if (sscanf(linha, "Nome:\t%s\tTelefone:\t%d\n", nome_responsavel, &telefone_responsavel) != 2) {
+                printf("Erro ao ler dados do responsável!\n");
+                exit(1);
+            }
+            adicionar_responsavel(nome_responsavel, telefone_responsavel, lista_responsaveis);
+            ultimo_responsavel = busca_responsavel(*lista_responsaveis, nome_responsavel);
+        } 
+        else if (strcmp(linha, "Criancas:\n") == 0) {
+            if (ultimo_responsavel == NULL) {
+                printf("Erro: Crianças encontradas sem responsável associado!\n");
+                exit(1);
+            }
+            
+            long int posicao_atual = ftell(arquivo);
+            
+            while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+                if (strncmp(linha, "Nome:", 5) == 0) {
+                    char nome_crianca[100], sexo[10];
+                    int idade, doc;
+                    if (sscanf(linha, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", nome_crianca, &idade, &doc, sexo) != 4) {
+                        printf("Erro ao ler dados da criança!\n");
+                        continue; 
+                    }
+                    
+                    ultimo_responsavel->crianca = adiciona_crianca(ultimo_responsavel->crianca, nome_crianca, idade, doc, sexo);
+                } else if (strcmp(linha, "Responsavel:\n") == 0) {
+                    break;  
+                }
+            }
+            
+            fseek(arquivo, posicao_atual, SEEK_SET);
+        }
+    }
+}
+```
+Essa função em linguagem C tem o objetivo de ler dados de um arquivo, que contém informações sobre responsáveis e suas crianças associadas. Como parâmetros, tem-se um ponteiro para o arquivo do qual os dados serão lidos e um ponteiro duplo para a lista que irá recebê-los. As variáveis locais são:
+- char linha[1000], para armazenar cada linha do arquivo
+- char nome_responsavel[100], um array de caracteres usado para armazenar o nome do responsável.
+- int telefone_responsavel,  uma variável inteira para armazenar o número de telefone do responsável.
+- Responsavel *ultimo, um ponteiro para o último responsável lido do arquivo, inicializado como NULL.
+  Ela funciona da seguinte forma:
+  #### Passo 1
+   O loop principal é responsável por ler o arquivo linha por linha até o final dele. A função fgets() é usada para ler cada linha do arquivo. 
+### Escrever para o arquivo
+```c
+void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_responsaveis) 
+{
+    Responsavel *responsavel_atual = lista_responsaveis;
+
+    
+    while (responsavel_atual != NULL) 
+    {
+        fprintf(responsaveis_e_criancas, "Responsavel:\n");
+        fprintf(responsaveis_e_criancas, "Nome:\t%s\tTelefone:\t%d\n", responsavel_atual->nome, responsavel_atual->telefone);
+
+        struct crianca *crianca_atual = responsavel_atual->crianca;
+
+        if (crianca_atual != NULL)
+        {
+            fprintf(responsaveis_e_criancas, "Criancas:\n");
+        }
+        
+        while (crianca_atual != NULL) 
+        {
+            fprintf(responsaveis_e_criancas, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", crianca_atual->nome, crianca_atual->idade, crianca_atual->doc, crianca_atual->sexo);
+            crianca_atual = crianca_atual->proximo;
+        }
+
+        responsavel_atual = responsavel_atual->proximo;
+    }
+}
+```
 
 
 
