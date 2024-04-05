@@ -11,7 +11,6 @@ void menu_crianca(){
     printf("1 - Adicionar crianca\n");
     printf("2 - Remover crianca\n");
     printf("3 - Edita os dados da crianca\n");
-    printf("4 - imprimir dados\n");
     printf("0 - SAIR\n");
 }
 
@@ -55,16 +54,14 @@ void converte_caracteres(char nome[100])
 
 void menu()
 {
-    printf("Bem vindo ao gerenciamento da creche Praxedes, escolha uma opção:\n");
+    printf("\nBem vindo ao gerenciamento da creche Praxedes, escolha uma opção:\n");
     printf("\n------------------------------------------------------------------\n");
     printf("Escolha 1, para adicionar responsável!\n");
     printf("Escolha 2, para remover responsável!\n");
-    printf("Escolha 3, para adicionar criança!\n");
-    printf("Escolha 4, para remover criança!\n");
-    printf("Escolha 5, para editar informações da criança!\n");
-    printf("Escolha 6, para buscar criança por nome!\n");
-    printf("Escolha 7, para listar responsáveis e suas crianças!\n");
-    printf("Escolha 8, para sair!\n");
+    printf("Escolha 3 para acessar o menu crianca do responsavel!\n");
+    printf("Escolha 4 para buscar por crianca na lista dos responsaveis\n");
+    printf("Escolha 5, para listar responsáveis e suas crianças!\n");
+    printf("Escolha 6, para sair!\n");
 }
 
 
@@ -193,7 +190,7 @@ void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
                 exit(1);
             }
             adicionar_responsavel(nome_responsavel, telefone_responsavel, lista_responsaveis);
-            ultimo_responsavel = busca(*lista_responsaveis, nome_responsavel);
+            ultimo_responsavel = busca_responsavel(*lista_responsaveis, nome_responsavel);
         } 
         else if (strcmp(linha, "Criancas:\n") == 0) {
             if (ultimo_responsavel == NULL) {
@@ -284,19 +281,27 @@ int main(void)
             break;
 
         case 3:
-            printf("Nome da crianca: \n");
-            scanf(" %[^\n]", nome);
             printf("Nome do responsavel: \n");
             scanf(" %[^\n]", nome_respondavel);
-            converte_caracteres(nome_respondavel);
-            Responsavel *ref = busca(responsavel, nome_respondavel);
+            Responsavel *ref = busca_responsavel(responsavel, nome_respondavel);
 
             if (ref == NULL)
             {
                 printf("Responsavel nao encontrado!\n");
                 break;
             }
-            
+            else{
+            int op;
+            do{
+            menu_crianca();
+            scanf("%d", &op);
+
+            switch(op){
+                
+                case 1:
+                printf("Nome: \n");
+                scanf(" %[^\n]", nome);
+
             if (verifica_nome(nome))
             {
                 converte_caracteres(nome);
@@ -314,47 +319,79 @@ int main(void)
             }
             break;
 
-        case 4:
+            case 2:
             printf("Digite o nome da criança: \n");
             scanf(" %[^\n]", nome);
-            responsavel->crianca = remove_crianca(responsavel->crianca, nome);
+            if(busca_crianca(ref->crianca, nome) == NULL){
+                printf("Crianca nao encontrada!\n");
+                exit(1);
+            }
+            else{
+            ref->crianca = remove_crianca(ref->crianca, nome);
+            }
             break;
 
-        case 5:
+            case 3:
             printf("Nome: \n");
             scanf(" %[^\n]", nome);
+            if(busca_crianca(ref->crianca, nome) == NULL){
+                printf("Crianca nao encontrada!\n");
+                exit(1);
+            }
+            else{
             printf("Novo nome: \n");
             scanf(" %[^\n]", novo_nome);
             
-            if (verifica_nome(nome) + verifica_nome(novo_nome) == 2)
+            if (verifica_nome(novo_nome))
             {
-                converte_caracteres(nome);
+                converte_caracteres(novo_nome);
                 printf("Idade: \n");
                 scanf("%d", &idade);
                 printf("Documento: \n");
                 scanf("%d", &doc);
                 printf("Sexo: \n");
                 scanf(" %[^\n]", sexo);
-                responsavel->crianca = edita_crianca(responsavel->crianca, nome, novo_nome, idade, doc, sexo);  
+                ref->crianca = edita_crianca(ref->crianca, nome, novo_nome, idade, doc, sexo);  
             }
             else
             {
                 printf("Nome invalido!\n");
             }
+            }
             break;
 
-        case 6:
+            case 0:
+            break;
+
+            default:
+            printf("Opcao invalida!\n");
+            }
+            } while(op != 0);
+            }
+            break;
+
+        case 4:
             printf("Nome: \n");
             scanf(" %[^\n]", nome);
-            responsavel->crianca = busca_crianca(responsavel->crianca, nome);
+            Responsavel *p = busca_crianca_nas_lst(responsavel, nome);
+            Crianca *pont = busca_crianca(p->crianca, nome);
+            if(p == NULL){
+                printf("Crianca nao esta cadastrada em nenhuma lista!\n");
+                break;
+            }
+            printf("Essa crianca esta sob a responsabilidade de %s\n", p->nome);
+            printf("Nome: %s\n", pont->nome);
+            printf("Idade: %d\n", pont->idade);
+            printf("Documento: %d\n", pont->doc);
+            printf("Sexo: %s\n", pont->sexo);
             break;
 
-        case 7:
+        case 5:
             listar_responsavel_e_criancas(responsavel);
             break;
 
-        case 8:
-
+        case 6:
+        
             fclose(responsaveis_e_criancas);
             FILE* arquivo2 = fopen("responsaveisEsuasCriancas.txt", "w");
             if (arquivo2 == NULL)
@@ -372,7 +409,7 @@ int main(void)
             break;
         
         default:
-            printf("\nOpção inválida, escolha os valores de 1 à 8!\n");
+            printf("\nOpção inválida, escolha os valores de 1 à 6!\n");
             break;
         }
     }

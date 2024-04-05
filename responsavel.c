@@ -5,21 +5,14 @@
 #include "crianca.h"
 
 
-void adicionar_responsavel(char nome[100], int telefone, Responsavel **responsavel)
+void adicionar_responsavel(char nome[80], int telefone, Responsavel **responsavel)
 {
-
     Responsavel *resp = (Responsavel*)malloc(sizeof(Responsavel));
-    if (resp == NULL)
-    {
-        printf("Deu ruim\n");
-        exit(1);
-    }
-    
     strcpy(resp->nome, nome);
     resp->telefone = telefone;
     resp->proximo = NULL;
     resp->crianca = NULL;
-
+        
     if (*responsavel == NULL)
     {
         *responsavel = resp;
@@ -33,6 +26,19 @@ void adicionar_responsavel(char nome[100], int telefone, Responsavel **responsav
     
 }
 
+
+Responsavel *busca_crianca_nas_lst(Responsavel *r, char nome[100]){
+    Responsavel *ref;
+    Crianca *p;
+    for(ref = r; ref != NULL; ref = ref->proximo){
+        for(p = ref->crianca; p != NULL; p = p->proximo){
+            if(strcmp(p->nome, nome) == 0){
+                return ref;
+            }
+        }
+    }
+    return NULL;
+}
 
 void excluir_responsavel(Responsavel **responsavel, char nome[80])
 {
@@ -94,17 +100,12 @@ void listar_responsavel_e_criancas(Responsavel *responsavel)
     
 }
 
-Responsavel *busca(Responsavel* responsavel, char nome[100])
-{
-    Responsavel *pont;
-    for (pont = responsavel; pont != NULL; pont = pont->proximo)
-    {
-        if (strcmp(pont->nome, nome) == 0)
-        {
-            return pont;
+Responsavel *busca_responsavel(Responsavel *r, char nome[80]){
+    Responsavel *p;
+    for(p = r; p != NULL; p = p->proximo){
+        if(strcmp(p->nome, nome) == 0){
+            return p;
         }
-        
     }
     return NULL;
-    
 }
