@@ -30,6 +30,14 @@ int verifica_nome(char nome[100])
     return 1;
 }
 
+int verificar_criancas(Responsavel *ultimo_responsavel) {
+    if (ultimo_responsavel != NULL && ultimo_responsavel->crianca != NULL) {
+        return 1; 
+    } else {
+        return 0; 
+    }
+}
+
 
 void converte_caracteres(char nome[100])
 {
@@ -170,7 +178,6 @@ void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_res
 
 void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
     char linha[1000]; 
-
     char nome_responsavel[100];
     int telefone_responsavel;
     Responsavel *ultimo_responsavel = NULL; 
@@ -186,18 +193,18 @@ void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
                 exit(1);
             }
             adicionar_responsavel(nome_responsavel, telefone_responsavel, lista_responsaveis);
-            ultimo_responsavel = busca(*lista_responsaveis, nome_responsavel); 
-        } else if (strcmp(linha, "Criancas:\n") == 0) {
+            ultimo_responsavel = busca(*lista_responsaveis, nome_responsavel);
+        } 
+        else if (strcmp(linha, "Criancas:\n") == 0) {
             if (ultimo_responsavel == NULL) {
                 printf("Erro: Crianças encontradas sem responsável associado!\n");
                 exit(1);
             }
             
-            int tem_criancas = 0; 
+            long int posicao_atual = ftell(arquivo);
+            
             while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-                if (strcmp(linha, "Responsavel:\n") == 0) {
-                    break; 
-                } else if (strncmp(linha, "Nome:", 5) == 0) {
+                if (strncmp(linha, "Nome:", 5) == 0) {
                     char nome_crianca[100], sexo[10];
                     int idade, doc;
                     if (sscanf(linha, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", nome_crianca, &idade, &doc, sexo) != 4) {
@@ -206,20 +213,15 @@ void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
                     }
                     
                     ultimo_responsavel->crianca = adiciona_crianca(ultimo_responsavel->crianca, nome_crianca, idade, doc, sexo);
-                    tem_criancas = 1; 
+                } else if (strcmp(linha, "Responsavel:\n") == 0) {
+                    break;  
                 }
             }
-            if (!tem_criancas) {
-                
-                if (ultimo_responsavel->proximo != NULL) {
-                    ultimo_responsavel = ultimo_responsavel->proximo;
-                }
-            }
+            
+            fseek(arquivo, posicao_atual, SEEK_SET);
         }
     }
 }
-
-
 
 
 
