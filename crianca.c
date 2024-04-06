@@ -59,14 +59,7 @@ Crianca *edita_crianca(Crianca *c, char nome[100], char Nnome[100], int idade, i
 
     if(p == NULL){
         printf("Nome nao encontrado!\n");
-        exit(1);
-    }
-
-    if(p == c){
-        strcpy(c->nome, Nnome);
-        c->idade = idade;
-        c->doc = doc;
-        strcpy(c->sexo, sexo);
+        return c;
     }
     else{
         strcpy(p->nome, Nnome);
