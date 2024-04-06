@@ -91,7 +91,7 @@ void adicionar_responsavel(char nome[80], int telefone, Responsavel **responsave
     
 }
 ```
-Essa função recebe como parâmetro o nome, telefone e um ponteiro duplo para a struct do responsavel,  que corresponde a lista encadeada dos responsáveis. Ela aloca dinamicamente uma variável resp do tipo Responsavel * para armazenar os novos dados. Em seguida, o programa vê se a lista está vazia e, caso sim, somente é atualizado com as informações do resp o conteúdo de responsavel. Caso contrário, um ponteiro para o último elemento da lista é declarado e para garantir que os novos dados adicionados não sobreescrevam um nó já existente, finalizando o procedimento.
+Essa função recebe como parâmetro o nome, telefone e um ponteiro duplo para a struct do responsavel,  que corresponde a lista encadeada dos responsáveis. Ela aloca dinamicamente uma variável resp do tipo Responsavel * para armazenar os novos dados. Em seguida, o programa vê se a lista está vazia e, caso sim, somente é atualizado com as informações do resp o conteúdo de responsavel. Caso contrário, o novo nó será adicionado no final da lista.
 ### Excluir responsavel
 ```c
 void excluir_responsavel(Responsavel **responsavel, char nome[80])
@@ -166,7 +166,7 @@ Crianca *adiciona_crianca(Crianca *c, char nome[100], int idade, int doc, char s
     return novo;
 }
 ```
-A função recebe os novos dados e declara um ponteiro para um novo nó, onde serão colocados. Após os procedimentos, ela retorna o novo nó.
+A função recebe os novos dados e declara um ponteiro para um novo nó, onde serão colocados. Após os procedimentos, ela retorna o novo nó, que se tornará o primeiro da lista.
 ### Remove criança
 ```c
 Crianca *remove_crianca(Crianca *c, char nome[100]){
@@ -277,7 +277,13 @@ Essa função em linguagem C tem o objetivo de ler dados de um arquivo, que cont
 - Responsavel *ultimo, um ponteiro para o último responsável lido do arquivo, inicializado como NULL.
   Ela funciona da seguinte forma:
   #### Passo 1
-   O loop principal é responsável por ler o arquivo linha por linha até o final dele. A função fgets() é usada para ler cada linha do arquivo. 
+   O loop principal é responsável por ler o arquivo linha por linha até o final dele. A função fgets() é usada para ler cada linha do arquivo. Enquanto ainda houver linhas para ler, ou seja, fgets() != NULL, o código continuará sendo executado.
+  #### Passo 2
+  Verifica se o que será lido faz parte do conjunto de dados do responsável ou da criança. No primeiro caso, a próxima linha do arquivo é lida, observando se ela está vazia (nesse caso, fgets() retorna NULL, e não há dados para ler) ou se está com os dois atributos esperados para o responsável (nome e telefone). Se qualquer uma das condições se concretizar, a execução da função é interrompida com exit(1). No segundo, olha se os dados do responsável pela aquelas crianças foram corretamente lidos, para depois iniciar um outro loop para ler as informações de todas as crianças na lista encadeada. 
+  #### Passo 3
+  Depois de passar das condições sem problemas, inicia-se a etapa de transferência de dados. A função sscanf() irá ler os dados do arquivo e armazená-los nas variáveis nome_responsavel e telefone_responsavel, que serão úteis para ir adicionando os responsáveis um por um por meio da função adicionar responsavel. Logo em seguida, o ponteiro para o último elemento é atualizado, em decorrência dessa adição. Na parte das crianças, o procedimento é o mesmo.
+  #### Passo 4
+   ftell e fseek trabalham em conjunto para garantir que o arquivo seja lido por completo. O código usa ftell() para obter a posição atual no arquivo antes de ler informações sobre crianças. Isso é usado para retornar à posição atual no arquivo caso seja necessário ler mais informações sobre responsáveis depois de ler informações sobre crianças. fseek() então procura pela posição informada pela outra função e retorna para ela, possibilitando uma leitura organizada e eficiente do código.
 ### Escrever para o arquivo
 ```c
 void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_responsaveis) 
@@ -307,6 +313,16 @@ void escrever_para_arquivo(FILE *responsaveis_e_criancas, Responsavel *lista_res
     }
 }
 ```
+A função escrever_para_arquivo tem como objetivo escrever os dados de uma lista de responsáveis e suas respectivas crianças em um arquivo. Ela recebe como parâmetros um ponteiro para o arquivo onde os dados serão escritos e um ponteiro para p primeiro elemento da lista encadeada os responsáveis. 
+#### Passo 1
+Inicializa-se um ponteiro responsavel_atual para percorrer a lista de responsáveis, começando pelo primeiro responsável. Depois, inicia-se um loop while para percorrer a lista de responsáveis. Este loop continua enquanto o ponteiro responsavel_atual não for nulo, ou seja, enquanto houver responsáveis na lista. 
+#### Passo 2
+Para cada responsável, escreve no arquivo a indicação de início de uma nova seção de responsável ("Responsavel:\n") e em seguida escreve o nome e telefone do responsável utilizando a função fprintf. 
+#### Passo 3
+Verifica se o responsável possui crianças associadas. Se sim, escreve no arquivo a indicação de início de uma nova seção de crianças ("Criancas:\n"). Inicia um loop interno para percorrer a lista de crianças associadas ao responsável atual (crianca_atual), escrevendo no arquivo o nome, idade, documento e sexo utilizando novamente a função fprintf. Após isso, o ponteiro de crianca_atual é atualizada para apontar para a próxima criança na lista. Isso vai se repetindo até que todos os dados das crianças referentes ao responsavel_atual sejam transferidos para o arquivo com êxito.
+#### Passo 4
+Após percorrer todas as crianças associadas ao responsável atual, atualiza o ponteiro responsavel_atual para apontar para o próximo responsável na lista. O loop externo continua até percorrer todos os responsáveis da lista. 
+
 
 
 
