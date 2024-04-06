@@ -56,7 +56,6 @@ void menu()
 }
 ```
 ## Menu criança
-### Menu crianca
 Menu que mostra as opções de manipulação dos dados das crianças dos responsáveis
 ```c
 void menu_crianca(){
@@ -138,17 +137,6 @@ Verifica se a lista está vazia. Se sim, a função retorna direto para main, po
 Caso seja não para a lista vazia, procura-se pelo o responsável que irá ser excluido usando um ponteiro para um nó da lista e um laço de repetição até responsavel == NULL, onde a lista termina, e uma função condicional if para comparar nome por nome.
 #### Passo 3
 Se o elemento desejado é o primeiro, apenas atribui a ele o nó seguinte. Se ele estiver no meio da lista, o ponteiro para o próximo do elemento anterior (que no caso é o próprio nó que se deseja excluir) recebe os dados do nó seguinte, para depois liberar da memória o nó excluido.
-### Menu crianca
-Menu que mostra as opções de manipulação dos dados das crianças dos responsáveis
-```c
-void menu_crianca(){
-    printf("== MENU ==\n");
-    printf("1 - Adicionar crianca\n");
-    printf("2 - Remover crianca\n");
-    printf("3 - Edita os dados da crianca\n");
-    printf("0 - SAIR\n");
-}
-```
 ### Adicionar criança
 ```c
 Crianca *adiciona_crianca(Crianca *c, char nome[100], int idade, int doc, char sexo[10]){
@@ -419,6 +407,107 @@ Após completar uma passagem pela lista e não ter realizado nenhuma troca (ou s
 #### Passo 8
 Depois de ordenar os responsáveis, é hora das crianças. Basicamente, o procedimento é o mesmo, com a diferença de que, após ordenar uma lista de um, deve-se passar para o próximo responsável para ordenar a lista dele, tarefa essa delegada para o loop maior while, em que o ponteiro do responsavel atual é ajustado para a apontar para o proximo nó e ocorre a verificação de fim de lista 
 (atual_responsavel != NULL).
+## Outras Funções
+### Verificar nome
+```c
+int verifica_nome(char nome[100])
+{
+    int i;
+    for (i = 0; nome[i] != '\0'; i++)
+    {
+        int c = nome[i];
+        if (!((('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')) || c == ' '))
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+```
+Função para verificar se o nome digitado é adequado. No caso, ele será válido quando não possuir números ou caracteres especiais.
+### Converte caracteres
+```c
+void converte_caracteres(char nome[100])
+{
+    int i;
+    for (i = 0; nome[i] != '\0'; i++)
+    {
+        int c = nome[i];
+        if ('A' <= c && c <= 'Z')
+        {
+            nome[i] = c - 'A' + 'a';
+        }
+    }
+}
+```
+Função que converte os caracteres do nome do responsavel ou da criança de maiúsculo para minúsculo.
+### Listar responsáveis e crianças
+```c
+void listar_responsavel_e_criancas(Responsavel *responsavel)
+{
+    Responsavel *pont1;
+    Crianca *pont2;
+    for (pont1 = responsavel; pont1 != NULL; pont1 = pont1->proximo)
+    {
+        printf("Nome: %s\t", pont1->nome);
+        printf("Numero: %d\n", pont1->telefone);
+        
+        for (pont2 = pont1->crianca; pont2 != NULL; pont2 = pont2->proximo)
+        {
+            printf("Nome: %s\t", pont2->nome);
+            printf("Documento: %d\t", pont2->doc);
+            printf("Sexo: %s\t", pont2->sexo);
+            printf("Idade: %d\n", pont2->idade);
+            
+        }
+        
+    }
+    
+}
+```
+Função que percorre uma lista de responsáveis, imprimindo seus dados e a quantidade de crianças sob seu cuidado, o que faz utilizando de dois ponteiros e dois loops.
+## Funções de Busca
+```c
+Responsavel *busca_responsavel(Responsavel *r, char nome[80]){
+    Responsavel *p;
+    for(p = r; p != NULL; p = p->proximo){
+        if(strcmp(p->nome, nome) == 0){
+            return p;
+        }
+    }
+    return NULL;
+}
+```
+Função que percorre toda a lista de responsáveis em busca daquele cujo nome corresponde ao passado como parâmetro. Se encontrar, retorna o nó em que está, caso contrário, retorna NULL, indicando falha na busca.
+```c
+Crianca *busca_crianca(Crianca *c, char nome[100]){
+    Crianca *p;
+    for(p = c; p != NULL; p = p->proximo){
+        if(strcmp(p->nome, nome) == 0){
+            return p;
+        }
+    }
+    return NULL;
+}
+```
+Função que percorre toda a lista de crianças em busca daquela cujo nome corresponde ao passado como parâmetro. Funciona da mesma forma que o código anterior.
+```c
+Responsavel *busca_crianca_nas_lst(Responsavel *r, char nome[100]){
+    Responsavel *ref;
+    Crianca *p;
+    for(ref = r; ref != NULL; ref = ref->proximo){
+        for(p = ref->crianca; p != NULL; p = p->proximo){
+            if(strcmp(p->nome, nome) == 0){
+                return ref;
+            }
+        }
+    }
+    return NULL;
+}
+```
+Tem como objetivo principal retornar o responsável por uma determinada criança cujo nome é especificado no parâmetro. A função percorre cada lista de crianças dos responsáveis a procura da criança certa. Se encontrar, retorna o nó do responsável, caso contrário, retorna NULL.  
+
+
 
 
 
