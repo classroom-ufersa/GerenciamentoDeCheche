@@ -322,6 +322,107 @@ Para cada responsável, escreve no arquivo a indicação de início de uma nova 
 Verifica se o responsável possui crianças associadas. Se sim, escreve no arquivo a indicação de início de uma nova seção de crianças ("Criancas:\n"). Inicia um loop interno para percorrer a lista de crianças associadas ao responsável atual (crianca_atual), escrevendo no arquivo o nome, idade, documento e sexo utilizando novamente a função fprintf. Após isso, o ponteiro de crianca_atual é atualizada para apontar para a próxima criança na lista. Isso vai se repetindo até que todos os dados das crianças referentes ao responsavel_atual sejam transferidos para o arquivo com êxito.
 #### Passo 4
 Após percorrer todas as crianças associadas ao responsável atual, atualiza o ponteiro responsavel_atual para apontar para o próximo responsável na lista. O loop externo continua até percorrer todos os responsáveis da lista. 
+## Função de ordenação
+```c
+void ordenar(Responsavel **lista_responsaveis) {
+    if (*lista_responsaveis == NULL || (*lista_responsaveis)->proximo == NULL) {
+        return; // Lista vazia ou com apenas um elemento, nada a fazer
+    }
+
+    // Ordenação dos responsáveis pelo nome
+    int trocou;
+    do {
+        trocou = 0;
+        Responsavel *atual = *lista_responsaveis;
+        Responsavel *anterior = NULL;
+        Responsavel *proximo = atual->proximo;
+
+        while (proximo != NULL) {
+            if (strcmp(atual->nome, proximo->nome) > 0) {
+                // Troca de posição
+                trocou = 1;
+                atual->proximo = proximo->proximo;
+                proximo->proximo = atual;
+                if (anterior == NULL) {
+                    *lista_responsaveis = proximo;
+                } else {
+                    anterior->proximo = proximo;
+                }
+                // Atualização dos ponteiros
+                anterior = proximo;
+                proximo = atual->proximo;
+            } else {
+                // Avança na lista
+                anterior = atual;
+                atual = proximo;
+                proximo = proximo->proximo;
+            }
+        }
+    } while (trocou);
+
+    // Ordenação das crianças de cada responsável pelo nome
+    Responsavel *atual_responsavel = *lista_responsaveis;
+    while (atual_responsavel != NULL) {
+        Crianca *atual_crianca = atual_responsavel->crianca;
+        Crianca *anterior_crianca = NULL;
+        int trocou_crianca;
+
+        do {
+            trocou_crianca = 0;
+            atual_crianca = atual_responsavel->crianca;
+            anterior_crianca = NULL;
+
+            while (atual_crianca != NULL && atual_crianca->proximo != NULL) {
+                Crianca *proxCrianca = atual_crianca->proximo;
+
+                if (strcmp(atual_crianca->nome, proxCrianca->nome) > 0) {
+                    // Troca de posição
+                    trocou_crianca = 1;
+                    atual_crianca->proximo = proxCrianca->proximo;
+                    proxCrianca->proximo = atual_crianca;
+                    if (anterior_crianca == NULL) {
+                        atual_responsavel->crianca = proxCrianca;
+                    } else {
+                        anterior_crianca->proximo = proxCrianca;
+                    }
+                    // Atualização dos ponteiros
+                    anterior_crianca = proxCrianca;
+                } else {
+                    // Avança na lista
+                    anterior_crianca = atual_crianca;
+                    atual_crianca = proxCrianca;
+                }
+            }
+        } while (trocou_crianca);
+
+        atual_responsavel = atual_responsavel->proximo;
+    }
+}
+```
+Função cuja finalidade é ordenar os responsáveis e as crianças em ordem alfabética. A seguir, está escrita uma explicação sobre sua funcionalidade:
+#### Passo 1
+Verificar se a lista está vazia ou se possui apenas um elemento. Caso sim, a função é encerrada, pois não há o que fazer.
+#### Passo 2
+O algoritmo executa repetidamente o processo de ordenação até que nenhuma troca seja necessária. Inicialmente, a variável trocou é definida como 0 para indicar que nenhuma troca ocorreu.
+#### Passo 3
+São definidos três ponteiros: atual, anterior e proximo. O ponteiro atual aponta para o primeiro elemento da lista de responsáveis, enquanto anterior é inicializado como NULL. O ponteiro proximo aponta para o próximo elemento após o atual.
+#### Passo 4
+O loop while percorre a lista de responsáveis e compara os nomes dos responsáveis adjacentes. O loop continua até que não haja mais elementos para comparar.
+#### Passo 5
+Dentro do loop while, é feita uma comparação dos nomes dos responsáveis apontados pelos ponteiros atual e proximo. Se o nome do responsável atual for maior (em ordem alfabética) do que o nome do responsável seguinte, ocorre a troca de posição entre eles. O ponteiro proximo do responsável atual é ajustado para apontar para o elemento seguinte ao próximo elemento, enquanto o ponteiro proximo do responsável seguinte é ajustado para apontar para o responsável atual. 
+
+A partir daí, se anterior permanecer NULL, significa que o elemento maior que foi trocado era o primeiro elemento da lista. Por isso, o ponteiro para o primeiro elemento *lista_responsavel irá apontar agora para proximo. Para o caso em que o nó maior estiver no meio da lista, o programa faz o ponteiro proximo do elemento anterior ao responsavel_atual apontar agora para o proximo, efetuando com sucesso a troca dos elementos sem desmantelar o endadeamento da lista. 
+#### Passo 6
+Após a troca de posição, os ponteiros anterior, atual e proximo são atualizados para avançar na lista e continuar comparando os elementos restantes.
+#### Passo 7
+Após completar uma passagem pela lista e não ter realizado nenhuma troca (ou seja, trocou permanece como 0), o loop do-while termina, indicando que a lista está ordenada corretamente. Caso contrário, o loop continua até que o valor seja esse.
+#### Passo 8
+Depois de ordenar os responsáveis, é hora das crianças. Basicamente, o procedimento é o mesmo, com a diferença de que, após ordenar uma lista de um, deve-se passar para o próximo responsável para ordenar a lista dele, tarefa essa delegada para o loop maior while, em que o ponteiro do responsavel atual é ajustado para a apontar para o proximo nó e ocorre a verificação de fim de lista 
+(atual_responsavel != NULL).
+
+
+
+
 
 
 
