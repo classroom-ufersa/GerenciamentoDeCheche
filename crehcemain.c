@@ -14,6 +14,14 @@ void menu_crianca(){
     printf("0 - SAIR\n");
 }
 
+int verifica_positivo(int n){
+    if(n > 0){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
 
 int verifica_nome(char nome[100])
 {
@@ -265,21 +273,30 @@ int main(void)
             {
                 converte_caracteres(nome);
                 printf("Telefone do responsável: \n");
-                scanf("%d", &telefone);
+                while (scanf("%d", &telefone) != 1 || !verifica_positivo(telefone)) {
+                printf("Entrada inválida. Por favor, digite um número inteiro positvo:\n");
+                while (getchar() != '\n');
+                }
                 adicionar_responsavel(nome, telefone, &responsavel);
-            }
-            else
-            {
-                printf("Nome invalido!\n");
+                printf("Responsável adicionado!\n");
+            } else{
+                printf("Nome inválido!\n");
             }
             break;
         
         case 2:
             printf("Nome do responsável: \n");
             scanf(" %[^\n]", nome);
-            excluir_responsavel(&responsavel, nome);
+            if(busca_responsavel(responsavel, nome) == NULL){
+                printf("Responsável não encontrado!\n");
+                break;
+            }
+            else{
+                excluir_responsavel(&responsavel, nome);
+                printf("Responsável removido com sucesso!\n");
+            }
             break;
-
+            
         case 3:
             printf("Nome do responsavel: \n");
             scanf(" %[^\n]", nome_respondavel);
@@ -287,7 +304,7 @@ int main(void)
 
             if (ref == NULL)
             {
-                printf("Responsavel nao encontrado!\n");
+                printf("Responsável nao encontrado!\n");
                 break;
             }
             else{
@@ -301,33 +318,51 @@ int main(void)
                 case 1:
                 printf("Nome: \n");
                 scanf(" %[^\n]", nome);
-
-            if (verifica_nome(nome))
-            {
+                if (verifica_nome(nome))
+                {
                 converte_caracteres(nome);
                 printf("Idade: \n");
-                scanf("%d", &idade);
+                while (scanf("%d", &idade) != 1 || !verifica_positivo(idade)) {
+                printf("Entrada inválida. Por favor, digite um número inteiro positvo:\n");
+                while (getchar() != '\n');
+                }
                 printf("Documento: \n");
-                scanf("%d", &doc);
+                while (scanf("%d", &doc) != 1 || !verifica_positivo(doc)) {
+                printf("Entrada inválida. Por favor, digite um número inteiro positvo:\n");
+                while (getchar() != '\n');
+                }
+                int sucesso = 0;
+                while(!sucesso){
+                sucesso = 1;
                 printf("Sexo: \n");
                 scanf(" %[^\n]", sexo);
+                if(!verifica_nome(sexo)){
+                printf("Entrada inválida! Por favor, insira somente caracteres não especiais\n");
+                sucesso = 0;
+                }
+                else{
+                converte_caracteres(sexo);
                 ref->crianca = adiciona_crianca(ref->crianca, nome, idade, doc, sexo);
-            }
-            else
-            {
+                printf("Crianca adicionada com sucesso!\n");
+                }
+                }
+                }
+                else
+                {
                 printf("Nome invalido!\n");
-            }
-            break;
+                }
+                break;
 
             case 2:
             printf("Digite o nome da criança: \n");
             scanf(" %[^\n]", nome);
             if(busca_crianca(ref->crianca, nome) == NULL){
                 printf("Crianca nao encontrada!\n");
-                exit(1);
+                break;
             }
             else{
             ref->crianca = remove_crianca(ref->crianca, nome);
+            printf("Crianca removida com sucesso!\n");
             }
             break;
 
@@ -336,7 +371,7 @@ int main(void)
             scanf(" %[^\n]", nome);
             if(busca_crianca(ref->crianca, nome) == NULL){
                 printf("Crianca nao encontrada!\n");
-                exit(1);
+                break;
             }
             else{
             printf("Novo nome: \n");
@@ -346,12 +381,30 @@ int main(void)
             {
                 converte_caracteres(novo_nome);
                 printf("Idade: \n");
-                scanf("%d", &idade);
+                while (scanf("%d", &idade) != 1 || !verifica_positivo(idade)) {
+                printf("Entrada inválida. Por favor, digite um número inteiro positvo:\n");
+                while (getchar() != '\n');
+                }
                 printf("Documento: \n");
-                scanf("%d", &doc);
+                while (scanf("%d", &doc) != 1 || !verifica_positivo(doc)) {
+                printf("Entrada inválida. Por favor, digite um número inteiro positvo:\n");
+                while (getchar() != '\n');
+                }
+                int sucesso = 0;
+                while(!sucesso){
+                sucesso = 1;
                 printf("Sexo: \n");
                 scanf(" %[^\n]", sexo);
-                ref->crianca = edita_crianca(ref->crianca, nome, novo_nome, idade, doc, sexo);  
+                if(!verifica_nome(sexo)){
+                printf("Entrada inválida! Por favor, insira somente caracteres não especiais\n");
+                sucesso = 0;
+                }
+                else{
+                converte_caracteres(sexo);
+                ref->crianca = edita_crianca(ref->crianca, nome, novo_nome, idade, doc, sexo);
+                printf("Edicao de crianca concluida!\n");
+                }
+                }  
             }
             else
             {
@@ -374,11 +427,11 @@ int main(void)
             printf("Nome: \n");
             scanf(" %[^\n]", nome);
             Responsavel *p = busca_crianca_nas_lst(responsavel, nome);
-            Crianca *pont = busca_crianca(p->crianca, nome);
             if(p == NULL){
                 printf("Crianca nao esta cadastrada em nenhuma lista!\n");
                 break;
             }
+            Crianca *pont = busca_crianca(p->crianca, nome);
             printf("Essa crianca esta sob a responsabilidade de %s\n", p->nome);
             printf("Nome: %s\n", pont->nome);
             printf("Idade: %d\n", pont->idade);
