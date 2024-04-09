@@ -29,7 +29,7 @@ int verifica_nome(char nome[100])
     for (i = 0; nome[i] != '\0'; i++)
     {
         int c = nome[i];
-        if (!((('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')) || c == ' '))
+        if (!((('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')) || c == ' ' || c == '^' || c == '~'))
         {
             return 0;
         }
@@ -77,10 +77,10 @@ void menu()
 
 void ordenar(Responsavel **lista_responsaveis) {
     if (*lista_responsaveis == NULL || (*lista_responsaveis)->proximo == NULL) {
-        return; // Lista vazia ou com apenas um elemento, nada a fazer
+        return; 
     }
 
-    // Ordenação dos responsáveis pelo nome
+    
     int trocou;
     do {
         trocou = 0;
@@ -90,7 +90,7 @@ void ordenar(Responsavel **lista_responsaveis) {
 
         while (proximo != NULL) {
             if (strcmp(atual->nome, proximo->nome) > 0) {
-                // Troca de posição
+                
                 trocou = 1;
                 atual->proximo = proximo->proximo;
                 proximo->proximo = atual;
@@ -99,11 +99,11 @@ void ordenar(Responsavel **lista_responsaveis) {
                 } else {
                     anterior->proximo = proximo;
                 }
-                // Atualização dos ponteiros
+                
                 anterior = proximo;
                 proximo = atual->proximo;
             } else {
-                // Avança na lista
+                
                 anterior = atual;
                 atual = proximo;
                 proximo = proximo->proximo;
@@ -111,7 +111,7 @@ void ordenar(Responsavel **lista_responsaveis) {
         }
     } while (trocou);
 
-    // Ordenação das crianças de cada responsável pelo nome
+    
     Responsavel *atual_responsavel = *lista_responsaveis;
     while (atual_responsavel != NULL) {
         Crianca *atual_crianca = atual_responsavel->crianca;
@@ -127,7 +127,7 @@ void ordenar(Responsavel **lista_responsaveis) {
                 Crianca *proxCrianca = atual_crianca->proximo;
 
                 if (strcmp(atual_crianca->nome, proxCrianca->nome) > 0) {
-                    // Troca de posição
+                    
                     trocou_crianca = 1;
                     atual_crianca->proximo = proxCrianca->proximo;
                     proxCrianca->proximo = atual_crianca;
@@ -136,10 +136,10 @@ void ordenar(Responsavel **lista_responsaveis) {
                     } else {
                         anterior_crianca->proximo = proxCrianca;
                     }
-                    // Atualização dos ponteiros
+                    
                     anterior_crianca = proxCrianca;
                 } else {
-                    // Avança na lista
+                    
                     anterior_crianca = atual_crianca;
                     atual_crianca = proxCrianca;
                 }
