@@ -193,7 +193,7 @@ void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
                 printf("Erro ao ler dados do responsável!\n");
                 exit(1);
             }
-            if (sscanf(linha, "Nome:\t%s\tTelefone:\t%d\n", nome_responsavel, &telefone_responsavel) != 2) {
+            if (sscanf(linha, "Nome:\t%[^\t]\tTelefone:\t%d\n", nome_responsavel, &telefone_responsavel) != 2) {
                 printf("Erro ao ler dados do responsável!\n");
                 exit(1);
             }
@@ -212,7 +212,7 @@ void ler_do_arquivo(FILE *arquivo, Responsavel **lista_responsaveis) {
                 if (strncmp(linha, "Nome:", 5) == 0) {
                     char nome_crianca[100], sexo[10];
                     int idade, doc;
-                    if (sscanf(linha, "Nome:\t%s\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", nome_crianca, &idade, &doc, sexo) != 4) {
+                    if (sscanf(linha, "Nome:\t%[^\t]\tIdade:\t%d\tDocumento:\t%d\tSexo:\t%s\n", nome_crianca, &idade, &doc, sexo) != 4) {
                         printf("Erro ao ler dados da criança!\n");
                         continue; 
                     }
